@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Hybrid Observability AI: A Connector-Agnostic, No-Egress Agentic Framework for Unified Full-Stack Observability with On-Premises and Cloud LLMs"
+authors:
+  - family-names: "Vemuri"
+    given-names: "Surya Narayana Murthy"
+    email: "svemurilv@gmail.com"
+    affiliation: "Independent Researcher"
+version: "2.1"
+date-released: "2026-07-03"
+license: "Apache-2.0"
+keywords:
+  - LLMOps
+  - observability
+  - agentic AI
+  - pluggable connectors
+  - on-premises LLM
+  - model routing
+  - OpenTelemetry
+  - data residency
+  - Model Context Protocol
+repository-code: "https://github.com/svemurilv/hybrid-observability-ai"
+url: "https://github.com/svemurilv/hybrid-observability-ai"
+# preferred-citation:               # uncomment and fill once the arXiv id is issued
+#   type: article
+#   title: "Hybrid Observability AI: ..."
+#   authors:
+#     - family-names: "Vemuri"
+#       given-names: "Surya Narayana Murthy"
+#   year: 2026
+#   identifiers:
+#     - type: other
+#       value: "arXiv:XXXX.XXXXX"

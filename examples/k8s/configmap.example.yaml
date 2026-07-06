@@ -1,0 +1,28 @@
+# Example ConfigMap — PLACEHOLDERS ONLY. Replace <...> with your values.
+# No real hostnames, tenants, or secrets belong in a committed manifest.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hybrid-observability-config
+  namespace: hybrid-observability
+data:
+  # ── Corporate-hosted inference (no public egress) ───────────────────────
+  LLM_BASE_URL:        "https://<your-internal-ollama-host>"   # inside your controlled env
+  LLM_MODEL:           "<primary-open-weight-model>"           # e.g. a general instruct model
+  LLM_FALLBACKS:       "<fallback-model-1>,<fallback-model-2>" # ordered chain
+  LLM_NUM_CTX:         "32768"
+  LLM_TIMEOUT:         "120"
+
+  # ── Agent budgets (window-tied; see reference_agent/context.py) ─────────
+  AGENT_MAX_TURNS:            "6"
+  AGENT_TOOL_RECORD_LIMIT:    "15"
+  AGENT_CONTEXT_CHAR_BUDGET:  "48000"   # auto-capped to fit LLM_NUM_CTX
+  AGENT_OUTPUT_TOKENS:        "3000"
+  AGENT_DISABLE_THINKING:     "1"       # for reasoning models that hide output
+
+  # ── Connectors (declare platforms in connectors.yaml; endpoints here) ───
+  CONNECTOR_A_URL:     "http://<mcp-connector-a>:PORT/mcp"
+  CONNECTOR_B_URL:     "http://<mcp-connector-b>:PORT/sse"
+
+  # ── State store ─────────────────────────────────────────────────────────
+  REDIS_URL:           "redis://<redis-host>:6379"

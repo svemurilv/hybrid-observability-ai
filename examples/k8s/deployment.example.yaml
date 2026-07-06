@@ -1,0 +1,40 @@
+# Example Deployment — PLACEHOLDERS ONLY. Illustrates the security posture (§8):
+# non-root, dropped capabilities, seccomp RuntimeDefault, read-only-friendly.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hybrid-observability
+  namespace: hybrid-observability
+  labels: {app: hybrid-observability}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: hybrid-observability}
+  template:
+    metadata:
+      labels: {app: hybrid-observability}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: app
+          image: "<your-registry>/hybrid-observability:<tag>"
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 8000}]
+          envFrom:
+            - configMapRef: {name: hybrid-observability-config}
+            # Secrets are injected at runtime — never baked into the image.
+            - secretRef: {name: connector-credentials}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: ["ALL"]}
+          resources:
+            requests: {memory: "512Mi", cpu: "250m"}
+            limits:   {memory: "2Gi",   cpu: "1500m"}
+          readinessProbe: {httpGet: {path: /health, port: 8000}, periodSeconds: 10}
+          livenessProbe:  {httpGet: {path: /health, port: 8000}, periodSeconds: 30, timeoutSeconds: 8, failureThreshold: 6}
+---
+# NOTE: CI/CD should authenticate to your cloud via short-lived OIDC (no static keys),
+# and the connector-credentials Secret should be sourced from your secrets manager.

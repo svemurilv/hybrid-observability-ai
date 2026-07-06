@@ -1,0 +1,23 @@
+# Secrets & local config — NEVER commit
+.env
+.env.*
+*.pem
+*.key
+connectors.yaml            # real registry (commit only connectors.example.yaml)
+
+# Eval outputs
+eval/results.json
+eval/report.md
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/

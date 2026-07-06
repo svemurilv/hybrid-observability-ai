@@ -1,0 +1,28 @@
+# Connector registry — declare each observability platform here (configuration, not code).
+# The framework runs capability discovery on each and assembles the agent's tool
+# vocabulary at runtime. Adding a platform needs only an entry + a reachable endpoint.
+#
+# transport: mcp | api | otlp   (decreasing order of "hands-free-ness")
+connectors:
+  # 1) MCP connector — capabilities discovered automatically via the protocol (zero code)
+  - id: platform-a
+    label: "APM / traces + logs"
+    transport: mcp
+    url: "http://mcp-platform-a:PORT/mcp"
+    headers:
+      Host: localhost            # some MCP servers enforce DNS-rebinding checks; override if needed
+
+  # 2) MCP connector over SSE
+  - id: platform-b
+    label: "Logs + Metrics + Cloud infra"
+    transport: mcp
+    url: "http://mcp-platform-b:PORT/sse"
+
+  # 3) API adapter — a thin wrapper that declares its own schemas
+  - id: example-metrics
+    label: "In-house metrics"
+    transport: api
+    module: "connectors.example_api:ExampleMetricsConnector"
+    options:
+      base_url: "https://metrics.internal.example/api"
+      token: "${METRICS_TOKEN}"   # injected from environment/secret, never committed
