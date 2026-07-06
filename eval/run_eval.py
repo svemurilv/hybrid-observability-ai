@@ -15,7 +15,7 @@ answer on three axes and aggregates the metrics of the whitepaper §6:
 Design notes
   - Observability answers are DATA-DEPENDENT, so we score faithfulness/grounding and
     behavior, NOT exact-match accuracy (see §6). This is the honest, correct target.
-  - LLM-as-judge is OPTIONAL and runs on the SAME corporate-hosted model endpoint
+  - LLM-as-judge is OPTIONAL and runs on the SAME self-hosted model endpoint
     (no public egress). Set JUDGE_MODEL to enable; otherwise automatic checks only.
   - Zero third-party deps (stdlib only) so it runs anywhere the agent is reachable.
     It is intentionally compatible with DeepEval/RAGAS/Phoenix: emit results.json and
@@ -62,7 +62,7 @@ def _post(path, body, timeout=REQ_TIMEOUT):
 
 
 def _judge(question, answer):
-    """Optional LLM-as-judge faithfulness score (1-5) via the corporate model."""
+    """Optional LLM-as-judge faithfulness score (1-5) via the self-hosted model."""
     if not JUDGE_MODEL or not OLLAMA_BASE:
         return None
     rubric = ("You are grading an observability assistant. Score 1-5 how FAITHFUL and "

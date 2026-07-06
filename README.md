@@ -1,6 +1,6 @@
 # Hybrid Observability AI
 
-**A connector-agnostic, no-egress agentic framework for unified full-stack observability with on-premises and cloud LLMs.**
+**A connector-agnostic, no-egress agentic framework for unified full-stack observability with self-hosted and cloud LLMs.**
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![Whitepaper](https://img.shields.io/badge/whitepaper-v2.1-teal.svg)](./WHITEPAPER.md)
@@ -28,8 +28,12 @@ The obvious fix is an LLM assistant — except regulated environments **cannot**
 telemetry to a public LLM API.
 
 **Hybrid Observability AI** resolves both: *correlate, don't consolidate* — via a pluggable
-connector model — and run entirely on **corporate-hosted open-weight models** with a strict
+connector model — and run entirely on **self-hosted open-weight models** with a strict
 no-public-egress guarantee.
+
+> **Deploy anywhere you control.** "Self-hosted" means the models and the framework run in
+> *your* infrastructure — your own **AWS, Azure, or GCP** account (or a data center) — never a
+> third-party AI provider. Data stays in your environment.
 
 ## Architecture
 
@@ -41,7 +45,7 @@ flowchart TB
     APP --> GUARD["Input guard (prompt-injection defense)"]
     APP --> CORR["Cross-connector correlation + normalization"]
   end
-  ROUTER -->|no public egress| LLM["Corporate-hosted open-weight models"]
+  ROUTER -->|no public egress| LLM["Self-hosted open-weight models"]
   APP -->|capability discovery, read-only| REG["Connector Registry"]
   REG --> C1["Connector A (MCP)"] --> P1["Platform A"]
   REG --> C2["Connector B (MCP/SSE)"] --> P2["Platform B"]
@@ -59,8 +63,10 @@ that advertises its capabilities at runtime — so onboarding a new tool is *con
 - **No public-AI egress** — inference confined to models you host; governed fallback chain.
 - **Cross-platform correlation** — one transaction, one cited answer, normalized to an
   OpenTelemetry-aligned schema.
-- **Progressive-disclosure skills** — portable `SKILL.md` domain packs loaded on demand
-  (keeps the prompt lean).
+- **Progressive-disclosure skills** — portable `SKILL.md` query-recipe packs loaded on demand
+  (keeps the prompt lean). Ships packs for **Splunk (SPL), Grafana (LogQL/PromQL), New Relic
+  (NRQL), Datadog, OpenSearch/Elastic, OpenObserve, AWS CloudWatch, Dynatrace (DQL), and
+  OpenTelemetry** — add your own as a markdown file, no code.
 - **Production-hardened for open-weight LLMs** — context-window auto-capping, hidden-reasoning
   handling, model routing. (See [`reference_agent/`](./reference_agent/).)
 - **Evaluation harness** — grounding/robustness/latency metrics ([`eval/`](./eval/)).

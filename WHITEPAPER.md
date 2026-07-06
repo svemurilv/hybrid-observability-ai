@@ -1,15 +1,15 @@
-# Hybrid Observability AI: A Connector-Agnostic, No-Egress Agentic Framework for Unified Full-Stack Observability with On-Premises and Cloud LLMs
+# Hybrid Observability AI: A Connector-Agnostic, No-Egress Agentic Framework for Unified Full-Stack Observability with Self-Hosted and Cloud LLMs
 
 **Author(s):** Surya Narayana Murthy Vemuri, Independent Researcher
 **Correspondence:** svemurilv@gmail.com
 **Version:** 2.0 · **Date:** July 2026
-**Keywords:** LLMOps, observability, agentic AI, pluggable connectors, capability discovery, on-premises LLM, model routing, OpenTelemetry, data residency, MCP
+**Keywords:** LLMOps, observability, agentic AI, pluggable connectors, capability discovery, self-hosted LLM, model routing, OpenTelemetry, data residency, MCP
 
 ---
 
 ## Abstract
 
-Enterprises operate full-stack observability across many heterogeneous, siloed platforms—APM/tracing, logs, metrics, real-user monitoring, and cloud-provider infrastructure services—each with its own query language and console. During incident response this fragmentation forces manual, cross-console correlation and raises mean-time-to-resolution. Applying Large Language Models (LLMs) is further constrained in regulated environments by data-residency rules that forbid sending telemetry to public LLM APIs. We present **Hybrid Observability AI**, a production-deployed, **connector-agnostic** framework that unifies *any* set of observability platforms behind a single natural-language interface while performing all inference on **corporate-hosted open-weight models** with a strict **no-public-egress** guarantee. The central design contribution is a **pluggable, self-describing Observability Connector model**: each platform is integrated through a standard adapter that advertises its own capabilities at runtime, so onboarding a new observability tool is *configuration, not code*—a "hands-free" integration path. Around this core we contribute mechanisms that make open-weight, multi-LLM agents reliable in production: a governed connector/tool layer, a progressive-disclosure skill loader, context-window auto-capping, hidden-reasoning-channel handling, model routing with fallback, and an evidence-grounded deep-analysis mode. A reference deployment integrates three connector classes (an APM/trace-and-log platform, a logs/metrics/dashboards platform, and a cloud-provider metrics/logs service) and generalizes to others (e.g., Datadog, New Relic, Splunk, Elastic, Honeycomb). We report preliminary single-tenant operating characteristics (cached responses ≈150 ms; live cross-platform answers ≈20–30 s; deep multi-source reports ≈3–4 min; no per-token inference cost), catalog the engineering challenges of hybrid on-prem multi-LLM operation, and propose an evaluation methodology grounded in the 2026 LLMOps framework ecosystem.
+Enterprises operate full-stack observability across many heterogeneous, siloed platforms—APM/tracing, logs, metrics, real-user monitoring, and cloud-provider infrastructure services—each with its own query language and console. During incident response this fragmentation forces manual, cross-console correlation and raises mean-time-to-resolution. Applying Large Language Models (LLMs) is further constrained in regulated environments by data-residency rules that forbid sending telemetry to public LLM APIs. We present **Hybrid Observability AI**, a production-deployed, **connector-agnostic** framework that unifies *any* set of observability platforms behind a single natural-language interface while performing all inference on **self-hosted open-weight models** with a strict **no-public-egress** guarantee. The central design contribution is a **pluggable, self-describing Observability Connector model**: each platform is integrated through a standard adapter that advertises its own capabilities at runtime, so onboarding a new observability tool is *configuration, not code*—a "hands-free" integration path. Around this core we contribute mechanisms that make open-weight, multi-LLM agents reliable in production: a governed connector/tool layer, a progressive-disclosure skill loader, context-window auto-capping, hidden-reasoning-channel handling, model routing with fallback, and an evidence-grounded deep-analysis mode. A reference deployment integrates three connector classes (an APM/trace-and-log platform, a logs/metrics/dashboards platform, and a cloud-provider metrics/logs service) and generalizes to others (e.g., Datadog, New Relic, Splunk, Elastic, Honeycomb). We report preliminary single-tenant operating characteristics (cached responses ≈150 ms; live cross-platform answers ≈20–30 s; deep multi-source reports ≈3–4 min; no per-token inference cost), catalog the engineering challenges of hybrid self-hosted multi-LLM operation, and propose an evaluation methodology grounded in the 2026 LLMOps framework ecosystem.
 
 ---
 
@@ -27,16 +27,18 @@ The problem is not specific to any vendor; it is structural to best-of-breed obs
 
 LLM assistants are the natural remedy, but regulated enterprises impose a hard constraint: **production telemetry—often containing customer identifiers and transaction detail—must not leave the organization's controlled environment.** This rules out the default architecture of commercial "AI observability copilots," which route context to hosted foundation models. A viable system must confine inference to models the organization itself controls.
 
+By **self-hosted** we mean models and the framework running in infrastructure the organization controls—its own AWS, Azure, or GCP account, or a data center—rather than a third-party AI provider. The term denotes *control and data residency*, not a specific location; the same deployment runs unchanged across any of these environments.
+
 ### 1.3 Contributions
 
 1. **A connector-agnostic, self-describing integration model** (the *Observability Connector*), enabling hands-free onboarding of arbitrary observability platforms via runtime capability discovery (§3, §4.1).
-2. **A no-egress agentic architecture** in which all inference runs on corporate-hosted open-weight models with a governed in-organization fallback chain and no path to public LLM APIs (§3, §4.2).
+2. **A no-egress agentic architecture** in which all inference runs on self-hosted open-weight models with a governed in-organization fallback chain and no path to public LLM APIs (§3, §4.2).
 3. **A governed tool/connector layer** that exposes only read-only, capability-scoped operations to the agent (§4.3).
 4. **A progressive-disclosure skill loader** that keeps the base prompt lean while remaining extensible (§4.4).
 5. **Robustness mechanisms for open-weight, multi-LLM operation**: context-window auto-capping, hidden-reasoning-channel handling, and model routing/fallback (§4.5, §5).
 6. **A connector-dispatched query and cross-connector correlation layer** with a vendor-neutral normalization schema (§4.6).
 7. **An evidence-grounded deep-analysis mode** with anti-fabrication constraints suited to production operations (§4.7).
-8. **A pragmatic evaluation methodology and framework survey** for benchmarking hybrid, on-prem, multi-LLM observability systems (§6).
+8. **A pragmatic evaluation methodology and framework survey** for benchmarking hybrid, self-hosted, multi-LLM observability systems (§6).
 
 ### 1.4 Scope and positioning
 
@@ -47,19 +49,19 @@ Hybrid Observability AI is **not** an LLM evaluation framework; it is an applica
 ## 2. Background and Related Work
 
 ### 2.1 AI-assisted observability
-Vendor copilots typically operate within a single platform and route context to hosted models. Our work differs on two axes: it is **connector-agnostic** (correlating across arbitrary platforms) and **no-egress** (on-prem inference).
+Vendor copilots typically operate within a single platform and route context to hosted models. Our work differs on two axes: it is **connector-agnostic** (correlating across arbitrary platforms) and **no-egress** (self-hosted inference).
 
 ### 2.2 LLMOps evaluation/observability frameworks
-Table 1 summarizes frameworks relevant to hybrid, on-prem, multi-LLM systems. They are **complementary**—the measurement layer we adopt for evaluation (§6), not competitors.
+Table 1 summarizes frameworks relevant to hybrid, self-hosted, multi-LLM systems. They are **complementary**—the measurement layer we adopt for evaluation (§6), not competitors.
 
-**Table 1. LLMOps evaluation/observability frameworks relevant to hybrid on-prem multi-LLM systems (2026).**
+**Table 1. LLMOps evaluation/observability frameworks relevant to hybrid self-hosted multi-LLM systems (2026).**
 
-| Framework | Primary role | Notable capabilities | OSS / self-host | Relevance to a hybrid + on-prem setup |
+| Framework | Primary role | Notable capabilities | OSS / self-host | Relevance to a hybrid + self-hosted setup |
 |---|---|---|---|---|
 | **DeepEval** | Unit-testing LLM apps/agents | 14+ metrics (hallucination, RAG), Pytest, LLM-as-judge | Yes | Offline testing of routing/agent pipelines; extensible to local models |
 | **Arize Phoenix** | Observability + eval | Tracing, automated evals, groundedness detection, OpenTelemetry | Yes | Production monitoring of multi-LLM setups |
 | **Langfuse** | End-to-end tracing & eval | Prompt mgmt, scoring, datasets, custom metrics | Yes (MIT) | Model-agnostic; works with local + hosted LLMs |
-| **MLflow (LLM)** | Full lifecycle eval | Agent tracing, quality gates, LLM-as-judge | Yes | Hybrid/on-prem + experiment tracking |
+| **MLflow (LLM)** | Full lifecycle eval | Agent tracing, quality gates, LLM-as-judge | Yes | Hybrid/self-hosted + experiment tracking |
 | **RAGAS** | RAG/retrieval eval | Faithfulness, context precision, answer relevance | Yes | Evaluates the retrieval/correlation path |
 | **TruLens** | Feedback & quality | Groundedness, context relevance | Yes | Feeds observability dashboards |
 | **Deepchecks** | Reliability & health | Bias, robustness, monitoring | Yes | Broader system health checks |
@@ -128,7 +130,7 @@ flowchart TB
     APP --> GUARD["Input guard (prompt-injection defense)"]
     APP --> CORR["Cross-connector correlation + normalization"]
   end
-  ROUTER -->|no public egress| LLM["Corporate-hosted open-weight models<br/>(controlled cloud environment)"]
+  ROUTER -->|no public egress| LLM["Self-hosted open-weight models<br/>(controlled cloud environment)"]
   APP -->|capability discovery, read-only| REG["Connector Registry"]
   REG --> C1["Connector A"] --> P1["Platform A"]
   REG --> C2["Connector B"] --> P2["Platform B"]
@@ -138,7 +140,7 @@ flowchart TB
 ```
 
 ### 4.2 No-egress inference and model routing
-Requests are served by a **primary open-weight model** with an ordered **fallback chain**, all corporate-hosted. Per-request model choice is allowed only from an **allowlist** enforced at the API boundary and again in the agent. A circuit breaker fails fast on backend unavailability. Crucially, **no code path reaches a public LLM.**
+Requests are served by a **primary open-weight model** with an ordered **fallback chain**, all self-hosted. Per-request model choice is allowed only from an **allowlist** enforced at the API boundary and again in the agent. A circuit breaker fails fast on backend unavailability. Crucially, **no code path reaches a public LLM.**
 
 ### 4.3 Governed connector/tool layer
 The agent holds no broad platform credentials; it invokes only the read-only operations that connectors advertise. This bounds the blast radius to read operations over a fixed, discoverable vocabulary, independent of which platforms are connected.
@@ -162,7 +164,7 @@ Multi-turn history is persisted per user/session with bounded retention. A direc
 
 ---
 
-## 5. Engineering Challenges in Hybrid On-Prem Multi-LLM Systems
+## 5. Engineering Challenges in Hybrid Self-Hosted Multi-LLM Systems
 
 Five production failure modes and their resolutions—each decisive for reliability yet under-discussed:
 
@@ -180,14 +182,14 @@ A two-tier strategy using Table 1 frameworks.
 
 **6.1 Offline (pre-deployment).** With DeepEval/MLflow, assert on **quality** (faithfulness/groundedness, relevance, hallucination rate, coherence, citation coverage), **robustness** (routing/fallback correctness, refusal-suppression when a capability exists, injection resistance), and **retrieval/correlation quality** via RAGAS (contextual precision/recall of the evidence set).
 
-**6.2 Online (post-deployment).** Instrument with OpenTelemetry; route traces to Arize Phoenix/Langfuse for **performance** (TTFT, TPOT, end-to-end latency, cache hit-rate, **cost/query**—key for on-prem vs. cloud), **trace completeness**, **multi-connector correlation accuracy**, and sampled live groundedness/anomaly monitoring.
+**6.2 Online (post-deployment).** Instrument with OpenTelemetry; route traces to Arize Phoenix/Langfuse for **performance** (TTFT, TPOT, end-to-end latency, cache hit-rate, **cost/query**—key for self-hosted vs. cloud), **trace completeness**, **multi-connector correlation accuracy**, and sampled live groundedness/anomaly monitoring.
 
 **6.3 Metric set.**
 
 | Category | Metrics |
 |---|---|
 | Quality | faithfulness, relevance, hallucination rate, coherence, citation coverage |
-| Performance | TTFT, TPOT, latency, throughput, cost/query (on-prem vs. cloud) |
+| Performance | TTFT, TPOT, latency, throughput, cost/query (self-hosted vs. cloud) |
 | Robustness | routing accuracy, fallback success, guardrail/injection resistance, convergence rate |
 | Connector/observability | capability-discovery correctness, trace completeness, cross-connector correlation accuracy, anomaly-detection precision/recall |
 
@@ -199,7 +201,7 @@ A two-tier strategy using Table 1 frameworks.
 
 - **Latency (observed):** cached repeats ≈150 ms; live cross-connector answers (general model) ≈20–30 s at 2 agent turns; deep multi-source reports (stronger model) ≈3–4 min at ~3 turns.
 - **Convergence:** typical live questions converge in 2 tool-use turns; the context auto-cap eliminated the observed non-convergence class.
-- **Cost:** **no per-token inference cost** (corporate-hosted); marginal cost dominated by existing platform subscriptions and negligible durable-state storage.
+- **Cost:** **no per-token inference cost** (self-hosted); marginal cost dominated by existing platform subscriptions and negligible durable-state storage.
 - **Extensibility (observed):** new read capabilities became available to the agent through connector capability-discovery without agent code changes; portable skill packs added platform-specific recipes as documents.
 - **Reliability fixes validated in deployment:** grounded deep-mode reports (no forced success narratives); correct wildcard entity/log search after connector-encapsulated backend fixes; restored third-party tool availability after transport hardening.
 
@@ -213,13 +215,13 @@ A rigorous benchmark—labeled suite, LLM-as-judge scoring, head-to-head latency
 - **PodSecurity "restricted":** non-root, dropped capabilities, seccomp `RuntimeDefault`.
 - **Secrets & supply chain:** secrets injected at runtime (never in images); CI/CD via short-lived OIDC (no static keys); gated promotion.
 - **Read-only guarantee:** no write path to any connected platform; the connector vocabulary is read-only.
-- **Data residency:** inference confined to corporate-hosted models; no public-AI egress.
+- **Data residency:** inference confined to self-hosted models; no public-AI egress.
 
 ---
 
 ## 9. Discussion, Limitations, Future Work
 
-**Limitations.** (1) Results are preliminary and single-tenant. (2) Some connectors inherit backend limits (e.g., provider pagination caps) encapsulated but not eliminated. (3) Deep-analysis latency reflects a deliberate quality/latency trade-off. (4) Answer quality tracks the corporate-hosted model tier available.
+**Limitations.** (1) Results are preliminary and single-tenant. (2) Some connectors inherit backend limits (e.g., provider pagination caps) encapsulated but not eliminated. (3) Deep-analysis latency reflects a deliberate quality/latency trade-off. (4) Answer quality tracks the self-hosted model tier available.
 
 **Future work.** (1) Formal evaluation per §6 with reproducible harnesses, including **connector-onboarding time** as a first-class metric. (2) Cost/latency-aware **dynamic model routing**. (3) An open **connector SDK** and certified reference connectors for major platforms. (4) Auto-sync of platform dashboard/panel definitions through connectors. (5) Additional signal classes (business events, RUM-derived signals) as connector capabilities. (6) Optional managed-LLM fallback preserving data-residency guarantees.
 
@@ -227,7 +229,7 @@ A rigorous benchmark—labeled suite, LLM-as-judge scoring, head-to-head latency
 
 ## 10. Conclusion
 
-Hybrid Observability AI shows that a **connector-agnostic, no-egress, agentic** framework can unify arbitrary full-stack observability platforms behind a natural-language interface using only corporate-hosted open-weight models. The framework's durable contribution is the **self-describing Observability Connector model**—hands-free onboarding of any platform via runtime capability discovery—paired with concrete, reproducible engineering lessons for running open-weight, multi-LLM agents in production. We release the design to encourage adoption in regulated environments where data residency is non-negotiable, and we invite replication and formal benchmarking.
+Hybrid Observability AI shows that a **connector-agnostic, no-egress, agentic** framework can unify arbitrary full-stack observability platforms behind a natural-language interface using only self-hosted open-weight models. The framework's durable contribution is the **self-describing Observability Connector model**—hands-free onboarding of any platform via runtime capability discovery—paired with concrete, reproducible engineering lessons for running open-weight, multi-LLM agents in production. We release the design to encourage adoption in regulated environments where data residency is non-negotiable, and we invite replication and formal benchmarking.
 
 ---
 

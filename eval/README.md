@@ -28,7 +28,7 @@ correct evaluation target for a production observability assistant.
 # Point at the running app (local port-forward or in-cluster service)
 BASE_URL=http://localhost:1800 python3 run_eval.py
 
-# Enable LLM-as-judge on the SAME corporate model endpoint (no public egress)
+# Enable LLM-as-judge on the SAME self-hosted model endpoint (no public egress)
 BASE_URL=http://localhost:8000 \
 OLLAMA_BASE_URL=https://ollama.internal \
 JUDGE_MODEL=qwen3:14b \
